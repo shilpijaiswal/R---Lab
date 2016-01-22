@@ -35,6 +35,9 @@ print("Size of DTA file is 188 KB ")
 print("Size of CSV file is 139 KB ")
 print("Size of TXT file is 139 KB ")
 print("Size of RDATA file is 45.3 KB ")
+print("The RDATA file is the smallest. This variability might be due to the difference in how these file types allocate memory. 
+      When we open data in notepad we see there is lot of space. In csv each observations are new line.")
+
 
 # # Problem 3
 print(paste("The class of data strcture is: ", class(NHIS_2007_RData)))
