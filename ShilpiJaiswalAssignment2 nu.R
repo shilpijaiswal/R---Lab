@@ -101,8 +101,8 @@ sort(unique(orgdata$educ))
 ShilpiJaiswalAssignment2$s4 <- aggregate( orgdata$rw, list(year=orgdata$year, month=orgdata$month, educ=orgdata$educ), mean, na.rm=TRUE )
 
 print(ShilpiJaiswalAssignment2$s4)
-#Print the aggregated list with mean real wage for each year, month and education level.
 
+# Save Rdata file
 save( ShilpiJaiswalAssignment2, file = "ShilpiJaiswalAssignment2.Rdata"
   
 )
