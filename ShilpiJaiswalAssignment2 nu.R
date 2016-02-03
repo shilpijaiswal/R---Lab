@@ -69,7 +69,10 @@ ShilpiJaiswalAssignment2$s2f <- mean(NHIS_2007$newweight,na.rm=TRUE)
 
 ShilpiJaiswalAssignment2$s2g <- median(NHIS_2007$newweight,na.rm=TRUE)
 
-ShilpiJaiswalAssignment2$s2h <- tapply(NHIS_2007$newweight, NHIS_2007$SEX, summary)    
+ShilpiJaiswalAssignment2$s2h <- summary( subset(NHIS_2007, SEX == 2)$newweight) 
+
+ShilpiJaiswalAssignment2$s2i <- summary( subset(NHIS_2007, SEX == 1)$newweight) 
+
 
 ###########################################################################
 
@@ -106,4 +109,5 @@ print(ShilpiJaiswalAssignment2$s4)
 save( ShilpiJaiswalAssignment2, file = "ShilpiJaiswalAssignment2.Rdata"
   
 )
+
 
