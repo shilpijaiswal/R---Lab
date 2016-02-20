@@ -206,7 +206,7 @@ dest_delay <- flights %>% filter(!is.na(dep_delay)) %>%
                   )
 
 airports <- airports %>%
-               select(dest=iata, name=airport, city, state, lat, long)
+               select(dest =iata, name=airport, city, state, lat, long)
 
 airports %>% tbl_df()
 
@@ -236,7 +236,10 @@ df.9c <- dest_delay %>% tbl_df() %>%
             right_join(
               airports, by = c("dest" = "dest")
             )
+print(nrow(df.9c))
 print("There are NAs in in the arr_delay column, because there are more observations in airports than in dest_delay")
+# The right join returns all rows from the airports, and any rows with matching keys from the dest_delay table.
+# thus it has 3376 rows which is same as no. of rows in airports table. Hence so many NA values.
 
 # 9d
 
@@ -251,13 +254,17 @@ print("Again there are NAs in arr_delay, because airports has a different number
 # 10
 
 hourly_delay <- dplyr::filter(flights, !is.na(dep_delay))%>%
-  group_by(date, hour)%>%
-  summarise(
-    delay = mean(dep_delay)
-  )
+                  group_by(date, hour)%>%
+                  summarise(
+                  delay = mean(dep_delay)
+                  )
 
 hourly_delay$date <- as.Date(hourly_delay$date)
-df.10a <- left_join(hourly_delay, weather, by=c("date"="date"))
+
+df.10a <-  hourly_delay %>% tbl_df() %>%
+              left_join(
+                  weather, by=c("date"="date")
+              )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # 11
