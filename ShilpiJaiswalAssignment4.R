@@ -13,7 +13,7 @@ print(1505120)
 
 library(dplyr)
 library("nycflights13")
-
+library(tidyr)
 
 flights <- read.csv("https://github.com/EconomiCurtis/econ294_2015/raw/master/data/flights.csv", stringsAsFactors=FALSE)
 planes <- read.csv("https://github.com/EconomiCurtis/econ294_2015/raw/master/data/planes.csv", stringsAsFactors=FALSE)
@@ -150,9 +150,9 @@ flights.7a <- flights %>%
 flights.7a <- arrange(flights.7a, desc(percent.cancelled))
 summary(flights.7a)
 
-# The below code filters out NA values in the dep_delay column in flights table, groups it by date and finds mean value of 
-# delay  for a given date along with the number of delayed flights on a given day. And finaly filters all observations with
-# nuber of delayed flights more than 10
+print("The below code filters out NA values in the dep_delay column in flights table, groups it by date and finds mean value of 
+delay  for a given date along with the number of delayed flights on a given day. And finaly filters all observations with
+number of delayed flights more than 10")
 
 day_delay <- flights %>%
                 filter(!is.na(dep_delay))%>%
@@ -258,3 +258,8 @@ hourly_delay <- dplyr::filter(flights, !is.na(dep_delay))%>%
 
 hourly_delay$date <- as.Date(hourly_delay$date)
 df.10a <- left_join(hourly_delay, weather, by=c("date"="date"))
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# 11
+require(tidyr)
+require(dplyr)
