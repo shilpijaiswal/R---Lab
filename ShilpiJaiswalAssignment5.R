@@ -92,3 +92,20 @@ org.educ <- org %>%
 plot2b <- ggplot(org.educ, aes( x = date, y = rw.median)) + 
           geom_line(aes(color = educ), size = 1.05)
 plot2b
+=======
+  group_by(year, month, educ) %>%
+  mutate(
+    
+    rw.median = median(rw, na.rm = T),
+    date = paste(year, month, "01", sep = "-"),
+    date = as.Date(date, format = "%Y-%m-%d"),
+    count = n()
+  ) %>% 
+  select(year, month, date, rw.median, educ) %>%
+  arrange(year,month)
+
+
+plot2b <- ggplot(org.educ, aes( x = date, y = rw.median)) + 
+  geom_line(aes(color = educ), size = 1.05)
+plot2b
+>>>>>>> f4950a16f152cb949a69eec97ba62f3bb82adc29
