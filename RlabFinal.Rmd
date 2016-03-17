@@ -9,14 +9,71 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r}
-summary(cars)
+```{r  message=FALSE}
+
+library("dplyr")  #for dplyr
+library("RSQLite") #for sqllite
+library("nycflights13") #for data
+library(ggplot2)
+
+my.db <- nycflights13_sqlite()
+
 ```
 
-You can also embed plots, for example:
+```{r, message=FALSE, echo=T}
+
+weather.df  <- weather %>% collect()
+planes.df  <- planes %>% collect()
+flights.df <- tbl(my.db, "flights") %>% 
+                 collect() %>%
+                 
+                  mutate(
+                       
+                     cancelled = ifelse(is.na(arr_time), 1, 0), # 151 cancellations
+                     delayed =  ifelse(dep_delay > 0, 1, 0),
+                     date = paste(year, month, day, sep = "-"),
+                     date = as.Date(date, "%Y-%m-%d")
+                  )
+
+```
+
 
 ```{r, echo=FALSE}
-plot(cars)
+
+weather.df <- weather.df %>%
+             mutate(
+                  
+                  date = paste(year, month, day, sep = "-"),
+                  date = as.Date(date, "%Y-%m-%d")
+   
+             )
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r, echo=T}
+
+flt.plane <- flights.df %>% 
+              left_join(planes.df, by = "tailnum")
+
+flt.plane.w <- flt.plane %>% inner_join(weather.df, by = "date")  %>% 
+      select(-year.x, -month.x, -day.x, -precip, -hour.x, -hour.y, -manufacturer,-type, -speed)
+
+```
+
+
+```{r, echo=FALSE, fig.height = 3., fig.width=6, message=FALSE, fig.cap = "Density of Dew Point"}
+# Analysis on weather
+ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) + 
+  geom_histogram(binwidth = 1) +
+  facet_grid(cancelled ~ .)
+
+```
+
+
+```{r, echo=FALSE, message=FALSE,}
+# Analysis on weather
+ ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) + 
+  geom_histogram(binwidth = 1) +
+  facet_grid(delayed ~ .)
+
+```
