@@ -52,3 +52,17 @@ plot2a <- ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) +
 flt.plane.w; distinct(select(flt.plane.w, visib))
 
 # Analysis on aspect of time
+
+time_analysis <- flt.plane.w %>% group_by(year.y, month.y, day.y) %>%
+  mutate(
+    
+    rw.median = median(dep_delay, na.rm = T),
+    count = n()
+  ) %>% 
+  select(year.y, month.y,day.y, date, rw.median, delayed) %>%
+  arrange(year.y, month.y, day.y)
+
+
+plot2b <- ggplot(time_analysis, aes( x = date, y = rw.median)) + 
+  geom_line(aes(color = month.y), size = 1.05)
+plot2b
