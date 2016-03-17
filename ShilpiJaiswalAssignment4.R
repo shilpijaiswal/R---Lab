@@ -1,7 +1,12 @@
 #' Shilpi Jaiswal
 #' Winter 2016
+<<<<<<< HEAD
 #' ShilpiJaiswalAssignment3.R
 #' 
+=======
+#' ShilpiJaiswalAssignment4.R
+#'
+>>>>>>> f4950a16f152cb949a69eec97ba62f3bb82adc29
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # 1 
@@ -235,3 +240,37 @@ hourly_delay <- dplyr::filter(flights, !is.na(dep_delay))%>%
 hourly_delay$date <- as.Date(hourly_delay$date)
 df.10a <- left_join(hourly_delay, weather, by=c("date"="date"))
 
+<<<<<<< HEAD
+=======
+df.10a <-  hourly_delay %>% tbl_df() %>%
+              left_join(
+                  weather, by=c("date"="date")
+              )
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# 11
+require(tidyr)
+require(dplyr)
+df1 <- data.frame(
+         subject = c(1,1,2,2),
+         treatment = c("a","b","a","b"),
+         value = c(3,4,5,6)
+       )
+
+df <- data.frame(treatment = c("a", "b"), subject1 = c(3, 4), subject2 = c(5, 6))
+
+df1 <- df %>%
+  gather(demo, n, 
+         ... = treatment, subject1, na.rm = T) %>%
+  arrange(iso2, year)
+  
+
+
+df1 %>% gather(
+  key = treatment,      # Names of key columns to create in output.
+  value = value,        # Names of value columns to create in output.
+  ... = -year           # "all but year" - Specification of columns to gather.
+) %>% 
+  arrange(year, treatment)
+
+>>>>>>> f4950a16f152cb949a69eec97ba62f3bb82adc29
