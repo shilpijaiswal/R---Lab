@@ -61,7 +61,7 @@ flt.plane.w <- flt.plane %>% inner_join(weather.df, by = "date")  %>%
 ```
 
 
-```{r, echo=FALSE, fig.height = 3., fig.width=6, message=FALSE, fig.cap = "Density of Dew Point"}
+```{r, echo=FALSE, fig.height = 3., fig.width=6, message=FALSE, fig.cap = "Density plot Dew Point, on Cancelled flights"}
 # Analysis on weather
 ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) + 
   geom_histogram(binwidth = 1) +
@@ -70,10 +70,37 @@ ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) +
 ```
 
 
-```{r, echo=FALSE, message=FALSE,}
+```{r, echo=FALSE, message=FALSE, fig.cap = "Density plot Dew Point, on Delayed flights"}
 # Analysis on weather
  ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) + 
   geom_histogram(binwidth = 1) +
   facet_grid(delayed ~ .)
+
+```
+
+
+
+```{r, echo=F}
+
+ # Analysis on aspect of time
+
+time_analysis <- flt.plane.w %>% group_by(year.y, month.y, day.y) %>%
+  mutate(
+    
+    rw.median = median(dep_delay, na.rm = T),
+    count = n()
+  ) %>% 
+  select(year.y, month.y,day.y, date, rw.median, delayed) %>%
+  arrange(year.y, month.y, day.y)
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, fig.cap = "Plot of median departure delay"}
+
+plot2b <- ggplot(time_analysis, aes( x = date, y = rw.median)) + 
+  geom_line(aes(color = rw.median), size = 1.05)
+plot2b
+
 
 ```

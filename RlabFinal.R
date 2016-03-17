@@ -59,10 +59,10 @@ time_analysis <- flt.plane.w %>% group_by(year.y, month.y, day.y) %>%
     rw.median = median(dep_delay, na.rm = T),
     count = n()
   ) %>% 
-  select(year.y, month.y,day.y, date, rw.median, delayed) %>%
+  select(year.y, month.y,day.y, date, rw.median) %>%
   arrange(year.y, month.y, day.y)
 
 
-plot2b <- ggplot(time_analysis, aes( x = date, y = rw.median)) + 
-  geom_line(aes(color = month.y), size = 1.05)
-plot2b
+plot2a <- ggplot(time_analysis, aes( x = date, y = rw.median)) + 
+  geom_line(aes(color = rw.median), size = 1.05)
+plot2a
