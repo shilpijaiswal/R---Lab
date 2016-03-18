@@ -5,11 +5,7 @@ date: "March 16, 2016"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r  message=FALSE}
+```{r setup, include=FALSE, message=FALSE, echo=FALSE, warning=FALSE}
 
 library("dplyr")  #for dplyr
 library("RSQLite") #for sqllite
@@ -17,10 +13,6 @@ library("nycflights13") #for data
 library(ggplot2)
 
 my.db <- nycflights13_sqlite()
-
-```
-
-```{r, message=FALSE, echo=T}
 
 weather.df  <- weather %>% collect()
 planes.df  <- planes %>% collect()
@@ -38,7 +30,7 @@ flights.df <- tbl(my.db, "flights") %>%
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 
 weather.df <- weather.df %>%
              mutate(
@@ -50,7 +42,7 @@ weather.df <- weather.df %>%
 ```
 
 
-```{r, echo=T}
+```{r, echo=F, message=FALSE}
 
 flt.plane <- flights.df %>% 
               left_join(planes.df, by = "tailnum")
@@ -60,46 +52,94 @@ flt.plane.w <- flt.plane %>% inner_join(weather.df, by = "date")  %>%
 
 ```
 
+#### Part A
+```{r,echo=FALSE, warning=FALSE}
+cancel.w <- glm(cancelled ~ dep_delay+temp+wind_speed+visib, family=binomial(link="probit"), data = flt.plane.w)
+```
 
-```{r, echo=FALSE, fig.height = 3., fig.width=6, message=FALSE, fig.cap = "Density plot Dew Point, on Cancelled flights"}
-# Analysis on weather
-ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) + 
+```{r, eval=TRUE}
+summary(cancel.w)
+```
+This probit regression shows that for cancelled flights, delay in departure, temperature and visibility are the most significant factors. We can also see that the delay in departure also significantly increases the probability of cancellation of a flight.
+
+***
+##### Effect of weather on cancellation
+```{r, echo=FALSE, fig.height = 3., fig.width=6, message=FALSE, fig.cap = "Density plot: Dew Point, on Cancelled flights", warning=FALSE}
+
+ggplot(flt.plane.w, aes(x = dewp, y = ..density..)) + 
   geom_histogram(binwidth = 1) +
   facet_grid(cancelled ~ .)
 
 ```
 
+##### Effect of weather on delay 
+```{r, echo=FALSE, message=FALSE, fig.cap = "Density plot: Dew Point, on Delayed flights"}
 
-```{r, echo=FALSE, message=FALSE, fig.cap = "Density plot Dew Point, on Delayed flights"}
-# Analysis on weather
- ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) + 
+ ggplot(flt.plane.w, aes(x = dewp, y = ..density..)) + 
   geom_histogram(binwidth = 1) +
   facet_grid(delayed ~ .)
 
 ```
 
 
+```{r, echo=FALSE, message=FALSE, fig.cap = "Plot of median departure delay by visibility"}
+# flt.plane.w; distinct(select(flt.plane.w, visib))
 
+qplot(dep_delay, data=flt.plane.w, geom="density", fill=visib, alpha=I(.5),
+      main="Distribution of Departure Delays, by visibility", xlab="Departure Delay",
+      ylab="Density")
+```
+
+***
+#### Part B
+
+##### Analysis on aspect of time, on delay and cancellation
 ```{r, echo=F}
-
- # Analysis on aspect of time
-
-time_analysis <- flt.plane.w %>% group_by(year.y, month.y, day.y) %>%
+time_analysis <- flt.plane.w %>% group_by(cancelled, year.y, month.y, day.y) %>%
   mutate(
     
-    rw.median = median(dep_delay, na.rm = T),
+    delay.median = median(dep_delay, na.rm = T),
     count = n()
   ) %>% 
-  select(year.y, month.y,day.y, date, rw.median, delayed) %>%
-  arrange(year.y, month.y, day.y)
+  select(year.y, month.y,day.y, date, delay.median) %>%
+  arrange(cancelled, year.y, month.y, day.y)
 
 ```
-
 
 ```{r, echo=FALSE, message=FALSE, fig.cap = "Plot of median departure delay"}
+plot2a <- ggplot(time_analysis, aes( x = date, y = delay.median), main="Median departure delay by day", xlab="Date", ylab="Median  Departure Delay") + 
+  geom_line(aes(color = cancelled), size = 1.05)
 
-plot2b <- ggplot(time_analysis, aes( x = date, y = rw.median)) + 
-  geom_line(aes(color = rw.median), size = 1.05)
+plot2a
+```
+From the above plot we can see that most of the flights cancelled have higher delays, which might mean the flights were finally cancelled once the flight couldnt be started after a long delay.
+
+```{r, echo=FALSE, message=FALSE, fig.cap = "Plot of median departure delay"}
+plot2b <- ggplot(time_analysis, aes( x = date, y = delay.median), main="Median departure delay by day", xlab="Date", ylab="Median  Departure Delay") + geom_line(aes(color = delay.median), size = 1.05)
+
 plot2b
+```
+Here I have used colour by median delay for a given day, we can see that the longer departure delays are mostly 
+between the month of April and July, unlike the cancelled flights are more frequent between months of May to August.
+We can see that in those months the probability of a delayed flight being cancelled is higher.
+
+
+#### Part C  Relationship between delay and destination.
+```{r, echo=FALSE, message=FALSE, fig.cap = "Plot of departure delay  by airport destination"}
+qplot(dep_delay, data=flt.plane.w, geom = "density", fill=dest, alpha=I(.5),
+      main="Distribution of Departure Delays, by airport destination", xlab="Departure Delay",
+      ylab="Density")
 
 ```
+
+This plot shows the delayed flights by destination.
+
+
+#### Part C  Relationship between delay and manufacturing year of the planes.
+```{r, echo=FALSE, message=FALSE, fig.cap = "Plot of departure delay  by planes manufacturing years"}
+qplot(dep_delay, data=flt.plane.w, geom = "histogram", fill=year.y, alpha=I(.5), 
+      main="Departure Delays by planes manufacturing years", xlab="Departure Delay", ylab="Density")
+
+```
+
+This plot shows delay by manufacturing years of the planes.
