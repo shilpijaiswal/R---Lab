@@ -102,5 +102,4 @@ plot2b <- ggplot(time_analysis, aes( x = date, y = rw.median)) +
   geom_line(aes(color = rw.median), size = 1.05)
 plot2b
 
-
 ```
