@@ -42,8 +42,7 @@ flt.plane.w <- flt.plane %>% inner_join(weather.df, by = "date")  %>%
 # Analysis on weather
 
 plot1a <- ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) + 
-  geom_histogram(binwidth = 1) +
-  facet_grid(cancelled ~ .)
+  geom_histogram(binwidth = 1) + facet_grid(cancelled ~ .)
 
 plot2a <- ggplot(flt.plane.w, aes(x = dewp, y = ..density.., fill = visib)) + 
   geom_histogram(binwidth = 1) +
