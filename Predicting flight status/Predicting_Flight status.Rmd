@@ -7,7 +7,6 @@ output:
     theme: cerulean
     highlight: pygments
     style: flat-table.css
-
 ---
 # ______________________________________________________________________________________________________________
 
@@ -17,15 +16,13 @@ Perhaps the most frustrating and costly event that an airplane traveler may face
 
 Whatever the case may be, we believe that there are instances when delays and cancellations are predictable and thus some financial damage can be avoided, especially with the massive amount of data collected by airports. With that being said, effectively analyzing the data requires in-depth technical skills, and if done properly, can have significant business implications. Since flight delays and cancellations tend to be the result of poor weather conditions and technical issues surrounding the planes and airports, and since much of this data is generally publicly available, it is important for someone in the airline business to gather and analyze the data effectively so as to predict future occurrences and lead to better decision making overall.
 
-
 Our intent of this study is to do just that; we have a single city dataset for all flights leaving New York City airports in 2013, and we hope to build a trustworthy model from it that can be used to better plan airplane travels. In this project, we thoroughly analyze the data to find the key contributors to flight cancellations and delays in order to evaluate and predict the probability that future flights will be cancelled and/or delayed. Also, we recognize the important business potential that an accurate predictive algorithm for this type of data holds. If we were able to build a precise model, then it has potential for widespread usability for any airline customer, possibly in the form of a smartphone application (app). An app of this sort may be able to link live weather updates and other crucial sources of data to help travelers plan their flights accordingly. For instance, if the data is plugged into the algorithm and it is found that a certain flight has a significantly high probability of cancellation, then the traveler can see this and arrange ahead of time, rather than having to scramble to change plans at the last minute, when in fact it may already be too late to do so.
 
 # ______________________________________________________________________________________________________________
 
 ## *  Data, Methodology and Results
-<blockquote>
-<p>  Here are the packages used. </p>
 
+Here are the packages used.
 ```{r message=FALSE, warning=FALSE}
 library(RSQLite)
 library(dplyr) 
@@ -45,9 +42,7 @@ library(glmnet)
 library(gbm)
 ```
 
-The Data we used is the nycflight13, which contains data regarding all flight information and weather readings in 2013 at New York City's three Airports. We joined all subsets together to fit into our models. 
-
-We define "cancelation" as 1 if "air time" is N/A, which indicates the flight never took off. Flight is considered delayed if "departure delay" is greater than 15 minutes, which is the industry standard. These two are categorical variables. 
+The Data used is the nycflight13, which contains data regarding all flight originating from NYC including weather readings in 2013. "cancelation" is defined as 1 if "air time" is N/A, which indicates the flight never took off. Flight is considered delayed if "departure delay" is greater than 15 minutes, which is the industry standard. These two are categorical variables. 
 
 ```{r echo=T, message=FALSE, warning=FALSE}
 db<-nycflights13_sqlite()
@@ -77,13 +72,10 @@ hist(weather$wind_speed, main = "Histogram of Wind Speed", xlab = "Wind Speed")
 hist(weather$wind_gust, main = "Histogram of Wind Gust", xlab = "Wind Gust")
 hist(weather$precip, main = "Histogram of Precipitation", xlab = "Precipitation")
 hist(weather$visib, main = "Histogram of Visibility", xlab = "Visibility")
-
 ```
 
 
-
 ##### Clearly from above histograms we can see there are outliers or some anomalies in wind speed, wind gust, precip and visib
-
 ```{r echo=T, message=FALSE, warning=FALSE}
 ordered_weather <- arrange(weather, desc(wind_speed), wind_gust, precip, visib)
 head(ordered_weather, 5)
