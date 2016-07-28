@@ -62,16 +62,27 @@ weather <- weather_sqlite %>% collect()
 ## * Exploring raw data
 
 ```{r echo=F, message=FALSE, warning=FALSE}
-par(mfrow= c(3,3))
+par(mfrow= c(3,3), mar = c(3, 3, 1, 0), oma = c(0, 0, 1, 0))
 hist(weather$temp, main = "Histogram of Temprature", xlab = "Temprature")
+rug(weather$temp)
 hist(weather$dewp, main = "Histogram of Dew Point", xlab = "Dew Point")
+rug(weather$dewp)
 hist(weather$humid, main = "Histogram of Humidity", xlab = "Humidity")
+rug(weather$humid)
 hist(weather$pressure, main = "Histogram of Pressure", xlab = "Pressure")
+rug(weather$pressure)
 hist(weather$wind_dir, main = "Histogram of Wind Direction", xlab = "Direction")
+rug(weather$wind_dir)
 hist(weather$wind_speed, main = "Histogram of Wind Speed", xlab = "Wind Speed")
+rug(weather$wind_speed)
 hist(weather$wind_gust, main = "Histogram of Wind Gust", xlab = "Wind Gust")
+rug(weather$wind_gust)
 hist(weather$precip, main = "Histogram of Precipitation", xlab = "Precipitation")
+rug(weather$precip)
 hist(weather$visib, main = "Histogram of Visibility", xlab = "Visibility")
+rug(weather$visib)
+
+mtext("Histograms of Weather variables in New York City", outer = TRUE)
 ```
 
 
@@ -89,6 +100,7 @@ weather <- subset(ordered_weather, wind_speed<1000, select = -c(visib, precip))
 ##### Observe wind_speed after removal of outlier
 ```{r echo=T, message=FALSE, warning=FALSE}
 hist(weather$wind_speed, breaks = 50, main = "Histogram of Wind Speed", xlab = "Wind Speed")
+rug(weather$wind_speed)
 ```
 
 ##### Now lets check for corrlelation between weather variables
@@ -281,9 +293,10 @@ logistic.prob <- predict(logistic.fit, test, type = "response")
 logistic.prediction <- ifelse(logistic.prob > 0.8, 1, 0)
 
 ```
-##### Confusion Matrix
+##### Confusion Matrix and Barplot for Logistic Model- Cancellation
 ```{r echo=F, message=FALSE, warning=FALSE}
 table(logistic.prediction, test$canceled)
+barplot(table(logistic.prediction, test$canceled), main = "Barplot for Logistic Model- Cancellation", col = 'cyan')
 
 ```
 
@@ -311,9 +324,11 @@ takeoffdelay.log.prediction <- ifelse(takeoffdelay.log.prob > 0.7, 1, 0)
 
 ```
 
-##### Confusion Matrix
+##### Confusion Matrix and Barplot for Logistic Model- Takeoff Delay.
 ```{r echo=F, message=FALSE, warning=FALSE}
 table(takeoffdelay.log.prediction , test$takeoffdelay)
+
+barplot(table(takeoffdelay.log.prediction , test$takeoffdelay), main = "Barplot for Logistic Model- Takeoff Delay", col = 'cyan')
 
 ```
 
@@ -325,13 +340,6 @@ mean(takeoffdelay.log.prediction == test$takeoffdelay, na.rm=T)
 
 Prediction for delay is slightly lower in accuracy, but still able to reach about 77%. Due to many more variables that can cause delay, this prediction is still valid. 
 
-#### Finally table for the two regressions
-```{r echo=F, message=FALSE, warning=FALSE}
-stargazer(logistic.fit, takeoffdelay.log.fit, type = "text", title = "Logistic regression Model to predict Cancellation & Delay", digits = 3, omit = c("month", "engine", "manuyear"), out="logisticfit.text", style = "qje")
-
-```
-
-
 ####-------------------------------------------------------------------------------------
 
 ### Linear Discriminant Analysis Model
@@ -342,17 +350,21 @@ cancel.lda.fit<-lda(canceled ~ temp+humid+wind_dir+wind_speed+pressure+dep_time+
 
 ```
 
+#### Plots and Summary of LDA regresion for predicting Cancellation Status
 ```{r echo=F, message=FALSE, warning=FALSE}
-cancel.lda.fit
-
 plot(cancel.lda.fit, main = "Linear Discriminat Analysis Cancellation Status")
+
+summary(cancel.lda.fit)
 ```
 
-##### Confusion Matrix
+#### Confusion Matrix
 ```{r echo=F, message=FALSE, warning=FALSE}
 cancel.lda.prediction <- predict(cancel.lda.fit, test)$class
 
 table(cancel.lda.prediction , test$canceled)
+
+barplot(table(cancel.lda.prediction , test$canceled), main = "Barplot for LDA Model- Cancellation", col = 'cyan')
+
 ```
 
 ##### Prediction Rate
@@ -365,23 +377,28 @@ mean(cancel.lda.prediction == test$canceled)
 takeoffdelay.lda.fit<-lda(takeoffdelay ~ temp+humid+wind_dir+wind_speed+pressure+dep_time+as.factor(month)+as.factor(origin)+seats+as.factor(engine)+as.factor(manuyear), data=train)
 
 ```
+##### **
 
+#### Plots and Summary of LDA regresion for predicting Delay Status
 ```{r echo=F, message=FALSE, warning=FALSE}
-takeoffdelay.lda.fit
 plot(takeoffdelay.lda.fit, main = "Linear Discriminat Analysis delay Status")
+
+summary(takeoffdelay.lda.fit)
 ```
 
-##### Confusion Matrix
+##### Confusion Matrix and Barplot for LDA Model
 ```{r echo=F, message=FALSE, warning=FALSE}
 takeoffdelay.lda.prediction <- predict(takeoffdelay.lda.fit, test)$class
 table(takeoffdelay.lda.prediction , test$canceled)
 
+barplot(table(takeoffdelay.lda.prediction , test$canceled), main = "Barplot for LDA Model- Takeoffdelay", col = 'cyan')
 ```
 
 ##### Prediction Rate
 ```{r echo=F, message=FALSE, warning=FALSE}
 mean(takeoffdelay.lda.prediction == test$takeoffdelay)
 ```
+
 Our lda regression predicting outcome of the flight status(cancelled, delayed or normal) produced a result consistant with what we found in logistic regressions. Since it predicts cancellation and delay within the same regression, the 79% accuracy is more than acceptable. 
 
 ####-------------------------------------------------------------------------------------
