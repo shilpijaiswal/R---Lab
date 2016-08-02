@@ -12,7 +12,7 @@ output:
 
 ##  * Introduction
 	   
-Perhaps the most frustrating and costly event that an airplane traveler may face is not   purchasing a plane ticket, but having to frantically scramble and rearrange plans when they arrive at the airport, only to find that their scheduled flight has been delayed, or cancelled altogether. Stories are often told of airplane travelers waiting multiple days for delayed flights, in which they are forced to rebook their flight and find nearby shelter in the meantime. However, many airlines themselves are the ones that finance these accommodations. Other times, when the length of delay isn't planned to be more than a day or so, these travelers end up spending their wait time in the airport itself. In these instances, it isn't just the traveler that is faced with having to spend valuable time and money rearranging, but the airport and the airline companies. This makes knowing of a flight?s status ahead of time a valuable tool for all parties involved.
+Perhaps the most frustrating and costly event that an airplane traveler may face is not   purchasing a plane ticket, but having to frantically scramble and rearrange plans when they arrive at the airport, only to find that their scheduled flight has been delayed, or cancelled altogether. Stories are often told of airplane travelers waiting multiple days for delayed flights, in which they are forced to rebook their flight and find nearby shelter in the meantime. However, many airlines themselves are the ones that finance these accommodations. Other times, when the length of delay isn't planned to be more than a day or so, these travelers end up spending their wait time in the airport itself. In these instances, it isn't just the traveler that is faced with having to spend valuable time and money rearranging, but the airport and the airline companies. This makes knowing of a flights status ahead of time a valuable tool for all parties involved.
 
 Whatever the case may be, we believe that there are instances when delays and cancellations are predictable and thus some financial damage can be avoided, especially with the massive amount of data collected by airports. With that being said, effectively analyzing the data requires in-depth technical skills, and if done properly, can have significant business implications. Since flight delays and cancellations tend to be the result of poor weather conditions and technical issues surrounding the planes and airports, and since much of this data is generally publicly available, it is important for someone in the airline business to gather and analyze the data effectively so as to predict future occurrences and lead to better decision making overall.
 
@@ -40,6 +40,7 @@ library(randomForest)
 library(leaps)
 library(glmnet)
 library(gbm)
+
 ```
 
 The Data used is the nycflight13, which contains data regarding all flight originating from NYC including weather readings in 2013. "cancelation" is defined as 1 if "air time" is N/A, which indicates the flight never took off. Flight is considered delayed if "departure delay" is greater than 15 minutes, which is the industry standard. These two are categorical variables. 
@@ -62,7 +63,7 @@ weather <- weather_sqlite %>% collect()
 ## * Exploring raw data
 
 ```{r echo=F, message=FALSE, warning=FALSE}
-par(mfrow= c(3,3), mar = c(3, 3, 1, 0), oma = c(0, 0, 1, 0))
+par(mfrow= c(3,3), mar = c(3, 3, 1, 0), oma = c(0, 0, 2, 0))
 hist(weather$temp, main = "Histogram of Temprature", xlab = "Temprature")
 rug(weather$temp)
 hist(weather$dewp, main = "Histogram of Dew Point", xlab = "Dew Point")
@@ -116,6 +117,13 @@ Made more clear by below plots. The rest of the variables have no clear relation
 
 ```{r echo=F, message=FALSE, warning=FALSE}
 pairs(weather_corr)
+```
+
+
+
+```{r echo=F, eval = F, message=FALSE, warning=FALSE}
+##### Now lets check for distribution of weather variables by month and origin
+# qplot(month, temp, data = weather, geom = "boxplot", color = origin)
 ```
 
 # ______________________________________________________________________________________________________________
@@ -222,15 +230,15 @@ delaymonthplot
 ```
 June, July December has higher delay rates. The histogram for delay is consistant with cancelation, but more delay occour during December in addition to June and July. This is likely due to the weather condition during winter like heavy snow or forzen runways.  
 
-##### Visualization of relation between wind speed and pressure.
+#### Visualization of relation between wind speed and pressure.
 ```{r message=FALSE, warning=FALSE}
 
 Visualization3 <- ggplot(data = final.data,
   aes(x = pressure, 
-      y = wind_speed)) +  
+      y = wind_speed)) +
       geom_point(aes(colour = factor(wind_dir))) +
-      facet_grid(.~canceled) +
-  ggtitle("Relation between Wind Speed and Pressure based on origin")
+      facet_grid(origin~canceled) +
+  ggtitle(" Relation between Wind Speed and Pressure")
 
 Visualization3
 ```
@@ -240,8 +248,8 @@ Visualization3
 Visualization4 <- ggplot(data = final.data,
       aes(x = wind_speed, y = dep_time)) +  
       geom_point(aes(colour = factor(wind_dir))) +
-      facet_grid(.~canceled) +
-      ggtitle("Relation between Wind Speed and Departure time based on origin")
+      facet_grid(origin~canceled) +
+      ggtitle(" Relation between Wind Speed and Departure time")
 
 Visualization4
 ```
@@ -280,6 +288,7 @@ Visualization4
 ####  Predicting Flight Cancellation Status
 ```{r echo=T, message=FALSE, warning=FALSE}
 logistic.fit <- glm(canceled ~ temp+humid+wind_dir+wind_speed+pressure+dep_time+as.factor(month)+as.factor(origin)+seats+as.factor(engine)+as.factor(manuyear), family=binomial, data=train, na.action=na.omit)
+
 ```
 
 ```{r echo=F, message=FALSE, warning=FALSE}
