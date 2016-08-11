@@ -188,7 +188,7 @@ rm(flights)
 rm(weather)
 rm(scale.id)
 rm(scale.matrix)
-rm(total)
+
 ```
 # ______________________________________________________________________________________________________________
 
@@ -233,7 +233,7 @@ June, July December has higher delay rates. The histogram for delay is consistan
 #### Visualization of relation between wind speed and pressure.
 ```{r message=FALSE, warning=FALSE}
 
-Visualization3 <- ggplot(data = final.data,
+Visualization3 <- ggplot(data = total,
   aes(x = pressure, 
       y = wind_speed)) +
       geom_point(aes(colour = factor(wind_dir))) +
@@ -245,7 +245,7 @@ Visualization3
 
 ```{r message=FALSE, warning=FALSE}
 
-Visualization4 <- ggplot(data = final.data,
+Visualization4 <- ggplot(data = total,
       aes(x = wind_speed, y = dep_time)) +  
       geom_point(aes(colour = factor(wind_dir))) +
       facet_grid(origin~canceled) +
@@ -263,17 +263,17 @@ Visualization4
 ```
 
 ```{r message=FALSE, warning=FALSE}
- ggplot(final.data, aes(x=origin, y=dep_time, fill = origin)) + 
+ ggplot(total, aes(x=origin, y=dep_time, fill = origin)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8, outlier.size=4)+
-      facet_grid(.~canceled) +
+      facet_grid(origin~canceled) +
   ggtitle("Boxplots for Departure time")
 
 ```
 
 ```{r message=FALSE, warning=FALSE}
-  ggplot(final.data, aes(x=origin, y=wind_speed, fill = origin)) + 
+  ggplot(total, aes(x=origin, y=wind_speed, fill = origin)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8, outlier.size=4)+
-      facet_grid(.~canceled) +
+      facet_grid(origin~canceled) +
   ggtitle("Boxplots for Wind Speed")
 ```
 

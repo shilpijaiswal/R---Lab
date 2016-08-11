@@ -1,0 +1,199 @@
+---
+title: "Statistical Learning 2"
+author: "Shilpi Jaiswal"
+date: "April 15, 2016"
+output: html_document
+---
+
+
+```{r setup, echo=F, warning=FALSE}
+library(ISLR)
+library(MASS)
+library(stargazer)
+library(class)
+
+```
+### Problem 1
+
+##### (a)
+        iii)  True, since after 3.5 GPA and above men’s salary is more than women’s.
+
+##### (b)
+        Salary after graduation = 50 + 20*GPA + 0.07*IQ + 35*Gender + 0.01*GPA*IQ – 10*GPA*Gender
+          
+        Salary (IQ = 110, GPA = 4.0) = 137.1 
+          
+##### (c)  
+        False, the effect of the interaction term or any predictor depends on whether the coefficient is 
+        significant or not, rather than on its magnitude.
+
+
+### -----------------------------------------------------------------------------------
+
+### Problem 2 (Carseats Dataset)
+
+##### (a)
+```{r, echo=T, warning=FALSE}
+   lm.fit1 <- lm(Sales ~ Price+Urban+US, data=Carseats)
+   summary(lm.fit1)
+```
+##### (b)        
+        
+        The coefficients of price, US and the constant term are significant at 95% level, while the coefficient 
+        of Urban is not significant which means price and US are significant predictors of Car seats sales. 
+        Thus we can say that on average with 1-unit increase in the price the car seat sales reduce by .054 
+        units everything else kept constant. 
+          
+        On average, if the store is in an Urban location, the price decreases by 0.022 units everything else kept 
+        constant.
+          
+        On average, if the store is in US, the price increases by 1.201 units everything else kept constant.
+
+##### (c)        
+        Sales = 13.043 - 0.054*Price - 0.022*Urban + 1.201*US
+
+##### (d)
+         Price, US.
+         
+##### (e)
+```{r, echo=T, warning=FALSE}
+    
+   lm.fit2 <- lm(Sales ~ Price+US ,data = Carseats)
+   summary(lm.fit2)
+```
+
+##### (f)
+         We look at the adjusted Rsquared for both the models and see that the value is higher for 
+         the second model which means that the second model is a better fit.
+
+
+##### (g) Confidence intervals for the coefficient(s)
+```{r, echo=T, warning=FALSE}
+    confint(lm.fit2)
+```
+
+##### (h) Plot of studentized residuals to observe outliers
+```{r, echo=T, warning=FALSE}
+
+    plot(predict(lm.fit2), rstudent(lm.fit2), xlab = "Fitted Values", ylab = "Studentized Residuals")
+    abline(h = 0, lty = 2)
+
+```
+
+##### ---
+       Observations whose studentized residuals are greater than 3 in absolute value are possible outliers.
+       In the above plot none of the studentized residuals exceeds 3 or -3, so there is no clear outlier here.
+
+##### (h) Plot of studentized residuals Vs Leverage Statistics       
+```{r, echo=T, warning=FALSE}
+    plot(hatvalues(lm.fit2))
+    which.max(hatvalues(lm.fit2))
+```
+##### ---
+       A large value of this statistic indicates an observation with high leverage.
+       Observation 43 stands out as having a very high leverage statistic.
+
+### -----------------------------------------------------------------------------------
+
+### Problem 3
+
+##### (a)
+```{r, echo=T, warning=FALSE}
+set.seed(1) 
+X <- rnorm(100)
+```
+
+##### (b)
+```{r, echo=T, warning=FALSE}
+eps <- rnorm(100, 0, 0.25)
+```
+
+##### (c)
+```{r, echo=T, warning=FALSE}
+Y <- -1 +0.5*X + eps
+
+
+```
+##### ---
+       The length of the vector Y is 100. Bo = -1 and B1 = 0.5 in this linear model.
+       
+##### (d) Scatterplot displaying relationship between X and Y.
+```{r, echo=T, warning=FALSE}
+    plot(X, Y)
+```
+
+##### ---
+      In this plot of Y vs X we can see that most of the points are located in the range of X values (-1,1) and range of Y values (-1,5, 0.5)
+
+##### (e) least square line
+```{r, echo=T, warning=FALSE}
+lm.fitXY <- lm(Y ~ X)
+summary(lm.fitXY)
+```
+##### ---
+      Bo_hat = -1 and B1_hat = 0.5 in this linear model.
+
+##### (f)
+```{r, echo=T, warning=FALSE}
+plot(X, Y)
+abline(lm.fitXY, col= "red", lwd = 3)
+abline(lm(Y~X+eps, drop.unused.levels=T), col= "green", lwd = 3)
+legend("topleft", legend = c("Fitted line","Population Line"),lty = c(1,1), col = c("red", "green"))
+```
+
+##### (g)
+```{r, echo=T, warning=FALSE}
+lm.fitXsqY <- lm(Y~X+I(X^2))
+summary(lm.fitXsqY)
+```
+
+##### (h)
+```{r, echo=T, warning=FALSE}
+set.seed(1) 
+X2 <- rnorm(100)
+
+eps2 <- rnorm(100, 0, 0.09)
+
+Y2 <- -1 +0.5*X2 + eps2
+
+lm.fitX2Y2 <- lm(Y2 ~ X2)
+
+plot(X2, Y2)
+abline(lm.fitX2Y2, col= "blue", lwd = 4)
+abline(lm(Y2~X2+eps2, drop.unused.levels=T), col= "pink", lwd = 3)
+legend("topleft", legend = c("Fitted line(less noise)","Population Line "),lty = c(1,1), col = c("blue", "pink"))
+```
+
+##### (i)
+```{r, echo=T, warning=FALSE}
+set.seed(1) 
+X3 <- rnorm(100)
+
+eps3 <- rnorm(100, 0, 0.5)
+
+Y3 <- -1 +0.5*X3 + eps3
+
+lm.fitX3Y3 <- lm(Y3 ~ X3)
+plot(X3, Y3)
+abline(lm.fitX3Y3, col= "blue", lwd = 4)
+abline(lm(Y3~X3+eps3, drop.unused.levels=T), col= "green", lwd = 3)
+legend("topleft", legend = c("Fitted line(more noise)","Population Line "),lty = c(1,1), col = c("blue", "green"))
+
+
+```
+
+##### (j) Confidence interval for first data set
+```{r, echo=T, warning=FALSE}
+confint(lm.fitXY)
+```
+
+##### (j) Confidence interval for second data set
+```{r, echo=T, warning=FALSE}
+
+confint(lm.fitX2Y2)
+```
+
+##### (j) Confidence interval for third data set
+```{r, echo=T, warning=FALSE}
+confint(lm.fitX3Y3)
+```

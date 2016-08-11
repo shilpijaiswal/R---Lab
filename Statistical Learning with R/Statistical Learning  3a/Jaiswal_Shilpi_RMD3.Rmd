@@ -1,0 +1,119 @@
+---
+title: "Statistical Learning 3"
+author: "Shilpi Jaiswal"
+date: "April 18, 2016"
+output: html_document
+---
+### Problem 1
+        The error term in a logistic regression is implicit. By assuming that the binary variable is 
+        Bernoulli conditionally on the regressors, we have chosen it as the error distribution. The regression 
+        is not linear though so it's not expressible as an additive error term.
+
+### Problem 2
+        In linear regression we do not treat X as random variable as we assume the X is known and fixed. One of the lines of difference in interpretation is whether to treat the regressors as random variables, or as predefined constants. In the first case (random design) the regressors xi are random and sampled together with the yi's from some population, as in an observational study. This approach allows for more natural study of the asymptotic properties of the estimators. In the other interpretation (fixed design), the regressors X are treated as known constants set by a design, and y is sampled conditionally on the values of X as in an experiment. For practical purposes, this distinction is often unimportant, since estimation and inference is carried out while conditioning on X. All results stated in this article are within the random design framework.
+
+
+### Problem 3
+        In classification problem (like logistic regression, LDA etc) we are finding the probability of the response variable being either 0 or 1 or Default or not default. So changing the response variable symbol wouldn't change the probability. And thus the result will still be the same.
+
+### Problem 4
+
+##### (i)
+       We handle non linearity in linear regression by including polynomial terms for the X variables in the regression. E.g. X^2 X^3 etc.
+
+##### (ii)
+       The standard errors that are computed for the estimated regression coeﬃcients or the ﬁtted values
+       are based on the assumption of uncorrelated error terms. If in fact there is correlation among the 
+       error terms, then the estimated standard errors will tend to underestimate the true standard errors.
+       As a result, conﬁdence and prediction intervals will be narrower than they should be.Such correlations 
+       frequently occur in the context of time series data, which consists of observations for which measurements 
+       are obtained at discrete points in time.In many cases, observations that are obtained at adjacent time points will have positively correlated errors
+       
+##### (iii)
+       We can identify non-constant variances in the errors, or heteroscedasticity, from the presence of a 
+       funnel shape in the residual plot. When faced with this problem, one possible solution is to transform 
+       the response Y using a concave function such as log Y or √Y . Such a transformation results in a greater
+       amount of shrinkage of the larger responses, leading to a reduction in heteroscedasticity. 
+
+##### (iv)
+       An outlier is a point for which yi is far from the value predicted by the outlier model. Outliers can 
+       arise for a variety of reasons, such as incorrect recording of an observation during data collection.
+       Residual plots can be used to identify outliers. The outlier is clearly visible in the residual plot.
+       But in practice, it can be diﬃcult to decide how large a residual needs to be before we consider 
+       the point to be an outlier. To address this problem, instead of plotting the residuals, we can plot 
+       the studentized residuals, computed by dividing each residual ei by its estimated standard studentized
+       error. Observations whose studentized residuals are greater than 3 in absolute value are possible outliers.
+       
+       In contrast, observations with high leverage have an unusual value for xi. High leverage observations tend to have a sizable impact on the estimated regression line. It is cause for concern if the least squares line is heavily aﬀected by just a couple of observations, because any problems with these points may invalidate the entire ﬁt. To quantify an observation’s leverage, we compute the leverage statistic. A large value of this tatistic indicates an observation with high leverage.
+ 
+  
+### Problem 5
+
+##### (a)
+```{r}
+set.seed(1)
+x1=runif(100)
+x2 =0.5*x1 + rnorm(100)/10
+y = 2 + 2*x1 + 0.3*x2 + rnorm (100)
+```
+        The regression coefficient are 2 and 0.3.
+
+##### (b)
+```{r, echo=T}
+cor(x1, x2)
+plot(x1, x2)
+
+```
+
+##### (c)
+```{r, echo=T}
+lm.fit <- lm(y~x1+x2)
+summary(lm.fit)
+```
+        The regression coefficient are B0 = 2.1305, B1 = 1.4396 and B2 = 1.0097. Since B2 is
+        not significant we cannot reject the null hypothesis B2 = 0. But B1 is significant at 95% level         so we can reject the null hypothesis B0 = 0.
+
+
+##### (d)
+```{r, echo=T}
+lm.fityx1 <- lm(y~x1)
+summary(lm.fityx1)
+```
+        The regression coefficient are B0 = 2.1305, B1 = 1.9759. Both B0 and B1 are significant not         so we can reject the null hypothesis B1 = 0 and B0 = 0.
+
+##### (e)
+```{r, echo=T}
+lm.fityx2 <- lm(y~x2)
+summary(lm.fityx2)
+```
+        The regression coefficient are B0 = 2.3899, B1 = 2.8996 . Both B0 and B1 are significant not         so we can reject the null hypothesis B1 = 0 and B0 = 0.
+
+##### (f)
+       The results from (c)–(e) do contradict each other. X1 and X2 are individualy significantly affecting y but their joint effect on y is different. The fact that x1 and x2 are highly correlated might the reason for this behaviour. The large correlation between the two regressors causes the standard error to increase making the estimates insignificant.
+
+###### (g)
+
+    ```{r, echo=T}
+    
+  x1=c(x1 , 0.1)
+  x2=c(x2 , 0.8)
+  y=c(y,6)
+
+   lm.fit <- lm(y~x1+x2)
+   summary(lm.fit)
+
+   lm.fityx1 <- lm(y~x1)
+   summary(lm.fityx1)
+   
+   lm.fityx2 <- lm(y~x2)
+   summary(lm.fityx2)
+   
+```
+    
+```{r, echo=T}
+ plot(hatvalues(lm.fityx1))
+  points( x1[which.max(hatvalues(lm.fityx1))], y[which.max(hatvalues(lm.fityx1))], pch = "X")
+   
+```
+  
+  

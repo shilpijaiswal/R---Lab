@@ -1,0 +1,187 @@
+---
+title: "Statistical Learning 4"
+author: "Shilpi Jaiswal"
+date: "May 8, 2016"
+output: html_document
+---
+
+
+
+```{r setup, echo=F, warning=FALSE}
+library(ISLR)
+library(MASS)
+library(stargazer)
+library(class)
+library(boot)
+
+```
+### Problem 1
+
+##### (a)
+        The k-fold CV approach involves randomly dividing the set of observations into k groups, or folds,
+        of approximately equal size. The ﬁrst fold is treated as a validation set, and the method is ﬁt on
+        the remaining k − 1 folds. The mean squared error, MSE1, is then computed on the observations in 
+        the held-out fold. This procedure is repeated k times; each time, a diﬀerent group of observations
+        is treated as a validation set. This process results in k estimates of the test error, MSE1, MSE2,
+        . . . , MSEk . The k-fold CV estimate is computed by averaging these values. 
+##### (b)
+        
+###### (i) 
+        The validation set approach involves randomly dividing the available set of observations into 
+        two parts, a training set and a validation set or hold-out set. The validation set model is ﬁt
+        on the training set, and the ﬁtted model is used to predict the responses for the observations
+        in the validation set. The resulting validation set error rate—typically assessed using MSE in
+        the case of a quantitative response—provides an estimate of the test error rate. The validation
+        estimate of the test error rate can be highly variable, depending on precisely which observations
+        are included in the training set and which observations are included in the validation set.
+        In the validation approach, only a subset of the observations—those that are included in the 
+        training set rather than in the validation set—are used to ﬁt the model. Since statistical methods
+        tend to perform worse when trained on fewer observations, this suggests that the validation set
+        error rate may tend to overestimate the test error rate for the model ﬁt on the entire data set.
+###### (ii)           
+        The LOOCV method has less bias but more variance than the k-fold method.LOOCV has the potential
+        to be expensive to implement, since the model has to be ﬁt n times. This can be very time consuming
+        if n is large, and if each individual model is slow to ﬁt 
+
+### -----------------------------------------------------------------------------------
+
+### Problem 2
+
+##### (a)
+        We can estimate the standard deviation of our prediction by using the bootstrap approach. 
+        The bootstrap approach works by repeatedly sampling observations (with replacement) from
+        the original data set n times, for some large value of n, each time fitting a new model 
+        and subsequently obtaining the RMSE of the estimates for all n models. The power of the 
+        bootstrap lies in the fact that it can be easily applied to a wide range of statistical
+        learning methods, including some for which a measure of variability is otherwise diﬃcult
+        to obtain and is not automatically output by statistical software.
+### -----------------------------------------------------------------------------------
+
+### Problem 3
+
+##### (a) 
+       n = 100, p = 2
+       y = X - 2*X^2 + u
+       
+       
+```{r, echo=T, warning=FALSE}
+ set.seed (1)
+ y <- rnorm (100)
+ x <- rnorm (100)
+ y <- x-2* x^2 + rnorm (100)
+
+```
+
+##### (b)
+```{r, echo=T, warning=FALSE}
+ plot(x,y)
+```
+  The plot looks like a quadratic curve. With the maximum value around zero.
+ 
+##### (c) (i)
+```{r, echo=T, warning=FALSE}
+ 
+df <- data.frame(y,x)
+glm.fit1 <- glm(y~x, data = df)
+cv.err1 <- cv.glm(df, glm.fit1)
+cv.err1$delta
+summary(glm.fit1)
+```
+The coefficient of x is significant, this means that x is a significant predictor of y.
+##### ---
+       
+##### (c) (ii)  
+```{r, echo=T, warning=FALSE}
+glm.fit2 <- glm(y~x+I(x^2), data = df)
+cv.err2 <- cv.glm(df, glm.fit2)
+cv.err2$delta    
+summary(glm.fit2)
+```
+The coefficients to all the predictors are significant as expected.
+##### ---
+
+##### (c) (iii)  
+```{r, echo=T, warning=FALSE}
+glm.fit3 <- glm(y~x+I(x^2)+I(x^3), data = df)
+cv.err3 <- cv.glm(df, glm.fit3)
+cv.err3$delta   
+summary(glm.fit3)
+
+```
+The coefficient of x^3 is not significant as expected.
+##### ---
+
+##### (c) (iv)  
+```{r, echo=T, warning=FALSE}
+glm.fit4 <- glm(y~x+I(x^2)+I(x^3)+I(x^4), data = df)
+cv.err4 <- cv.glm(df, glm.fit4)
+cv.err4$delta   
+summary(glm.fit4)
+
+```
+The coefficients of power higher than 2 are not significant as expected.
+      
+
+##### (d) 
+         The results from (c) are different from (d) as setting different seeds results in generation
+         of different y and x variables and thus different errors.
+```{r, echo=T, warning=FALSE}
+set.seed(45)
+ y <- rnorm (100)
+ x <- rnorm (100)
+ y <- x-2* x^2 + rnorm (100)
+ df <- data.frame(y,x)
+ 
+cv.error <- rep(0,4)
+for(i in 1:4){
+  
+ glm.fit <- glm(y~poly(x,i), data = df)
+cv.error[i] <- cv.glm(df, glm.fit)$delta[1]
+}
+cv.error 
+```
+##### ---
+   
+##### (e)
+        The third model has the smallest error as expected as the y variable was simulated using a quadratic 
+        equation.
+
+##### (f)
+        The coefficients of linear and quadratic terms are significant which agrees with the cv results which gives lowest error to the 2nd model, which has only x and x^2.
+
+
+### Problem 4
+
+##### (a)
+```{r, echo=T, warning=FALSE}
+summary(Boston)  
+set.seed(1)  
+attach(Boston) 
+
+mu_hat <- mean(medv)
+mu_hat
+
+```
+
+##### (b)
+```{r, echo=T, warning=FALSE}
+std_err <- sd(medv)/(sqrt(length(medv)))
+std_err
+```
+
+##### (c)
+```{r, echo=T, warning=FALSE}
+boot.fn <- function(data, index) return(mean(data[index]))  
+bstrap <- boot(medv, boot.fn, 1000)  
+bstrap  
+
+```
+     Similar to answer from (b) up to two significant digits. (0.4119 vs 0.4089) 
+     
+##### (d)
+```{r, echo=T, warning=FALSE}
+t.test(medv)  
+c(bstrap$t0 - 2*0.4119, bstrap$t0 + 2*0.4119)  
+
+```
+      Bootstrap estimate only 0.02 away for t.test estimate. 
